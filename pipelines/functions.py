@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.metrics import r2_score, explained_variance_score ,mean_absolute_error, max_error
 
-from tools.preprocessing import train_val_test_split, build_features
+from tools.preprocessing import build_features
+
 
 
 def column_categorization(X):
@@ -18,7 +19,13 @@ def column_categorization(X):
                 'binary_features': binary_features,
                 'categorical_features': categorical_features
                 }
-        
+
+
+def select_numerical_features(X):
+    """Select the numerical features from the dataset."""
+    column_categories = column_categorization(X)
+    return X[column_categories["numerical_features"]].reset_index(drop=True)
+
         
 def encode_features(X, encoder, categorical_features):
     return pd.concat(
