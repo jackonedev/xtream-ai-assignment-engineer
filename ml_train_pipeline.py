@@ -1,6 +1,5 @@
 import os
 import pickle
-from copy import copy
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import (
@@ -19,7 +18,7 @@ from pipelines.estimators import (
     CustomScaler
 )
 from pipelines.column_transformation import PandasFeatureUnion
-from pipelines.functions import column_categorization
+from pipelines.functions import column_categorization, select_numerical_features
 from tools.preprocessing import train_val_test_split
 from utils.config import (
     DATASET_PATH, SEED,
@@ -47,8 +46,7 @@ X_train, X_test, y_cat_train, y_cat_test = train_test_split(
 )
 
 workflow_1 = PandasFeatureUnion([
-    ("numeric_cols", FunctionTransformer(
-        lambda X: X[column_categories["numerical_features"]].reset_index(drop=True))),
+    ("numeric_cols", FunctionTransformer(select_numerical_features)),
     ("binary_cols", CustomOrdinalEncoder(
         column_categories["binary_features"])),
     ("category_cols", CustomOneHotEncoder(
@@ -60,10 +58,17 @@ pipeline_1 = Pipeline([
     ("scale", CustomScaler(StandardScaler)),
 ])
 
+
 # 1.1- Train the model
-X_train = pipeline_1.fit_transform(X_train)
+pipeline_1.fit(X_train)
+X_train = pipeline_1.transform(X_train)
+X_test = pipeline_1.transform(X_test)
 log_reg = LogisticRegression()
 log_reg.fit(X_train, y_cat_train)
+
+# 1.2- Save the pipeline
+with open(os.path.join(MODELS_PATH, "transform_pipeline.pkl"), "wb") as f:
+    pickle.dump(pipeline_1, f)
 
 
 # 2- Regression Models
@@ -150,6 +155,8 @@ with open(os.path.join(MODELS_PATH, "lgbm_exclusive.pkl"), "wb") as f:
 # 3.1- Save the data
 X_train.to_csv(os.path.join(MODEL_DATA_PATH, "log_reg_X_train.csv"), index=False)
 y_cat_train.to_csv(os.path.join(MODEL_DATA_PATH, "log_reg_y_cat_train.csv"), index=False)
+X_test.to_csv(os.path.join(MODEL_DATA_PATH, "log_reg_X_test.csv"), index=False)
+y_cat_test.to_csv(os.path.join(MODEL_DATA_PATH, "log_reg_y_cat_test.csv"), index=False)
 
 Xc_train.to_csv(os.path.join(MODEL_DATA_PATH, "common_Xc_train.csv"), index=False)
 yc_train.to_csv(os.path.join(MODEL_DATA_PATH, "common_yc_train.csv"), index=False)
