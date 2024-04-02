@@ -13,8 +13,19 @@ class RemoveOutliers(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        assert X[X["price"] > 0].shape[0] > 0, "All values are outliers. Please check the data."
-        return X[X["price"] > 0].reset_index(drop=True)
+        """Remove outliers from the dataset. Outliers are:
+        - price <= 0
+        - x <= 0
+        - y <= 0
+        - z <= 0
+        """
+        _X = X.copy()
+        _X = _X[_X["price"] > 0].reset_index(drop=True)
+        _X = _X[(_X["x"] > 0) & (_X["y"] > 0) & (_X["z"] > 0)].reset_index(drop=True)
+    
+        assert _X.shape[0] != 0, "No data left after removing outliers"
+        return _X
+    
 
 
 class CustomOrdinalEncoder(BaseEstimator, TransformerMixin):
