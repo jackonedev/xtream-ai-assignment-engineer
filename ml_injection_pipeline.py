@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from pydantic import ValidationError
 from schemas.diamond import Diamond
-from utils.config import MODELS_PATH
+from utils.config import MODELS_PATH, DATASET_PATH
 
 
 # LOAD THE MODELS AND TRANSFORM PIPELINE
@@ -37,6 +37,12 @@ def data_transformation(data: Any) -> pd.DataFrame:
             raise e
             
         data = pd.DataFrame(data, index=[0])
+        
+    elif isinstance(data, type(np.array(0))) or isinstance(data, list):
+        cols = pd.read_csv(DATASET_PATH).drop(columns='price').columns
+        data = {col: [val] for col, val in zip(cols, data)}
+        data = pd.DataFrame(data)        
+        
     data = transform_pipeline.transform(data)
     return data
 
@@ -55,17 +61,3 @@ def prediction_pipeline(data: Any) -> float:
         pred = lgbm_common.predict(data)[0]
 
     return round(pred, 1)
-
-
-def interpretation_pipeline(data: np.array):
-    data = pd.DataFrame(
-        data,
-        columns=['carat', 'cut', 'color', 'clarity', 'depth', 'table', 'x', 'y', 'z']
-    ).T
-    print(data.head())
-    
-    pred = prediction_pipeline(data)
-    
-    print('prediction made')
-    
-    return pred
