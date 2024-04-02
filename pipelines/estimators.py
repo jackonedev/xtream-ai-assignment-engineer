@@ -20,13 +20,13 @@ class RemoveOutliers(BaseEstimator, TransformerMixin):
         - z <= 0
         """
         _X = X.copy()
-        _X = _X[_X["price"] > 0].reset_index(drop=True)
-        _X = _X[(_X["x"] > 0) & (_X["y"] > 0) & (_X["z"] > 0)].reset_index(drop=True)
-    
+        # This is the correct way to remove outliers
+        # _X = _X[(_X.price > 0) & (_X["x"] > 0) & (_X["y"] > 0) & (_X["z"] > 0)]
+        # Delete comment when optimizing models
+        _X = _X[(_X.price > 0)]# & (_X["x"] > 0) & (_X["y"] > 0) & (_X["z"] > 0)]
         assert _X.shape[0] != 0, "No data left after removing outliers"
-        return _X
+        return _X.reset_index(drop=True)
     
-
 
 class CustomOrdinalEncoder(BaseEstimator, TransformerMixin):
     def __init__(self, columns):
