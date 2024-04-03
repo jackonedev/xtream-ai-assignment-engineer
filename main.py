@@ -1,9 +1,14 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 
 from api import models, diamonds
+from utils.config import DATASET_ROOT
+
+STATIC_PATH = os.path.join(DATASET_ROOT, "diamonds", "_md-images")
 
 app = FastAPI()
 
@@ -17,12 +22,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount(diamonds.router.prefix + "/_md-images", StaticFiles(directory="static/_md-images"), name="static")
+app.mount(diamonds.router.prefix + "/_md-images", StaticFiles(directory=STATIC_PATH), name="static")
 
 app.include_router(models.router)
 app.include_router(diamonds.router)
 
-# create a @get welcome message
+
 @app.get("/", response_class=HTMLResponse)
 async def welcome():
     message = """\
