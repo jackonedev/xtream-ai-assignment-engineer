@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Models and data files
-models/*
+.models/*
 pred_interpret.ipynb
