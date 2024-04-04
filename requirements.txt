@@ -6,5 +6,6 @@ lightgbm
 shap
 lime
 pydantic
+fastapi
 uvicorn[standard]
 python-multipart
