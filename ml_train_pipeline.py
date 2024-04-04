@@ -34,9 +34,10 @@ column_categories = column_categorization(df.drop(columns=["price"]))
 
 
 # 1- Classification Model
+price_threshold = df.price.median()
 X = df.drop(columns=["price"])
 y_cat = pd.DataFrame(
-    np.where(df.price >= df.price.median(), 1, 0), columns=['exclusive'])
+    np.where(df.price > price_threshold, 1, 0), columns=['exclusive'])
 
 X_train, X_test, y_cat_train, y_cat_test = train_test_split(
     X, y_cat,
@@ -72,8 +73,8 @@ with open(os.path.join(MODELS_PATH, "transform_pipeline.pkl"), "wb") as f:
 
 
 # 2- Regression Models
-common_sample = df.loc[np.where(df.price < df.price.median())[0], :]
-exclusive_sample = df.loc[np.where(df.price >= df.price.median())[0], :]
+common_sample = df.loc[np.where(df.price <= price_threshold)[0], :]
+exclusive_sample = df.loc[np.where(df.price > price_threshold)[0], :]
 
 params = {
     "objective": "regression",
@@ -87,6 +88,7 @@ params = {
     "extra_trees": False,
     "random_state": SEED,
 }
+
 
 # 2.1- Common Model
 X_common = common_sample.drop(columns=["price"])
@@ -116,6 +118,19 @@ lgbm_common = lgb.train(params, train_set, num_boost_round=3000, callbacks=[
 
 
 # 2.2- Exclusive Model
+params = {
+    "objective": "regression",
+    "metric": "l1",
+    "learning_rate": 0.005,
+    "max_depth": 14,
+    "num_leaves": 25, 
+    "min_child_samples": 1,
+    "verbose": 0,
+    "n_jobs": -1,
+    "extra_trees": False,
+    "random_state": SEED,
+}
+
 X_exclusive = exclusive_sample.drop(columns=["price"])
 y_exclusive = exclusive_sample[["price"]]
 
