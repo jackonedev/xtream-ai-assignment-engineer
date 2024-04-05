@@ -68,7 +68,7 @@ log_reg = LogisticRegression()
 log_reg.fit(X_train, y_cat_train)
 
 # 1.2- Save the pipeline
-with open(os.path.join(MODELS_PATH, "transform_pipeline.pkl"), "wb") as f:
+with open(os.path.join(MODELS_PATH, "log_reg_pipeline.pkl"), "wb") as f:
     pickle.dump(pipeline_1, f)
 
 
@@ -110,6 +110,9 @@ Xc_train = pipeline_2.transform(Xc_train)
 Xc_val = pipeline_2.transform(Xc_val)
 Xc_test = pipeline_2.transform(Xc_test)
 
+with open(os.path.join(MODELS_PATH, "common_pipeline.pkl"), "wb") as f:
+    pickle.dump(pipeline_2, f)
+
 # 2.1.1- Train the model
 train_set = lgb.Dataset(Xc_train, label=yc_train)
 val_set = lgb.Dataset(Xc_val, label=yc_val)
@@ -150,6 +153,9 @@ pipeline_3.fit(Xe_train)
 Xe_train = pipeline_3.transform(Xe_train)
 Xe_val = pipeline_3.transform(Xe_val)
 Xe_test = pipeline_3.transform(Xe_test)
+
+with open(os.path.join(MODELS_PATH, "exclusive_pipeline.pkl"), "wb") as f:
+    pickle.dump(pipeline_3, f)
 
 # 2.2.1- Train the model
 train_set = lgb.Dataset(Xe_train, label=ye_train)
