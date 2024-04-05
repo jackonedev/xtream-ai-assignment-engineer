@@ -13,6 +13,8 @@ def column_categorization(X):
 
         binary_features = categories_count[categories_count == 2].index.to_list()
         categorical_features = categories_count[categories_count > 2].index.to_list()
+        #TODO: This remove object columns with 1 unique value
+        #TODO: Verify what happen with datetime columns
         
         return {
                 'numerical_features': numerical_features,
@@ -26,23 +28,6 @@ def select_numerical_features(X):
     column_categories = column_categorization(X)
     return X[column_categories["numerical_features"]].reset_index(drop=True)
 
-        
-def encode_features(X, encoder, categorical_features):
-    return pd.concat(
-        [
-            X.drop(columns=categorical_features).reset_index(),
-            build_features(encoder, X, categorical_features)
-        ], axis=1).set_index('index')
-    
-    
-def scale_features(X, scaler):
-    return pd.DataFrame(
-        scaler.transform(X),
-        columns=X.columns.str.replace(
-            r"[^\w\s]", "_", regex=True
-        ).str.replace("__+", "_", regex=True),
-    )
-    
 
 def see_results(y_real, y_pred):
     print("(Total price of sample, Predicted total price, Difference)")
@@ -61,3 +46,4 @@ def evaluate_metrics(y_real, y_pred, verbose=True):
         print(f"MAE Score: {mae:.2f}")
         print(f"Max error: {max_err:.2f}")
     return r2, r2_var, mae, max_err
+
