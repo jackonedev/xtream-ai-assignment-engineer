@@ -1,3 +1,4 @@
+from typing import List
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
@@ -41,3 +42,6 @@ class Diamond(BaseModel):
     z: float
     
     model_config = ConfigDict(extra='forbid')
+
+class DiamondDataFrame(BaseModel):
+    data: List[Diamond]
