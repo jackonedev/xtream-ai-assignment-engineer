@@ -32,6 +32,8 @@ df = pd.read_csv(DATASET_PATH)
 df = RemoveOutliers().fit_transform(df)
 column_categories = column_categorization(df.drop(columns=["price"]))
 
+with open(os.path.join(MODEL_DATA_PATH, "column_categories.pkl"), "wb") as f:
+    pickle.dump(column_categories, f)
 
 # 1- Classification Model
 price_threshold = df.price.median()

@@ -1,11 +1,21 @@
+import os, pickle
 import pandas as pd
 from sklearn.metrics import r2_score, explained_variance_score ,mean_absolute_error, max_error
 
-from tools.preprocessing import build_features
-
+# from tools.preprocessing import build_features
+from utils.config import MODEL_DATA_PATH
 
 
 def column_categorization(X):
+    
+        if len(X) == 1:
+            try:
+                with open(os.path.join(MODEL_DATA_PATH, "column_categories.pkl"), "rb") as f:
+                    return pickle.load(f)
+            except FileNotFoundError:
+                print("System error: No column categories file found, the input dataset must have more than 1 row to categorize columns.")
+                raise FileNotFoundError
+    
         numerical_features = X.select_dtypes(include='number').columns
         categories_count = (X.loc[:, (X.dtypes == "object").values]
                 .apply(lambda x: x.to_frame().drop_duplicates().value_counts(), axis=0)
