@@ -52,7 +52,10 @@ def data_transformation(data: Any) -> pd.DataFrame:
                 print(element)
             raise e
 
-        data = pd.DataFrame(data, index=[0])
+        try:
+            data = pd.DataFrame(data)
+        except:
+            data = pd.DataFrame(data, index=[0])
 
     elif isinstance(data, type(np.array(0))) or isinstance(data, list):
         data = {col: [val] for col, val in zip(cols, data)}
@@ -64,7 +67,7 @@ def data_transformation(data: Any) -> pd.DataFrame:
     return data
 
 
-def prediction_pipeline(data: Any) -> float:
+def prediction_pipeline(data: Any) -> np.ndarray:
     """
     Function to predict the price of a diamond based on the input data.
     The input data can be a dictionary, a list or a numpy array.
@@ -88,13 +91,13 @@ def prediction_pipeline(data: Any) -> float:
         if cat > cat_threshold:
             cat = 'Exclusive'
             _X = exclusive_pipeline.transform(_data)
-            pred = lgbm_exclusive.predict(_X)[0]
+            pred = lgbm_exclusive.predict(_X)#[0]
         else:
             cat = 'Common'
             _X = common_pipeline.transform(_data)
-            pred = lgbm_common.predict(_X)[0]
+            pred = lgbm_common.predict(_X)#[0]
             pred = pred * (1 + avg_infl_rate) ** delta_year
-        return round(pred, 1)
+        # return round(pred, 1)
 
     else:
         # Batch prediction
@@ -122,4 +125,4 @@ def prediction_pipeline(data: Any) -> float:
         pred = np.concatenate([pred_exclusive, pred_common])
         pred = pred[np.argsort(list(original_order.keys()))]
         
-        return pred.round(1)
+    return pred.round(1)
