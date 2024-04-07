@@ -62,22 +62,25 @@ pipeline_1 = Pipeline([
 ])
 
 
-# 1.1- Train the model
+# 1.1- Train the pipeline
 pipeline_1.fit(X_train)
 X_train = pipeline_1.transform(X_train)
 X_test = pipeline_1.transform(X_test)
+# 1.2- Train the model
 log_reg = LogisticRegression()
 log_reg.fit(X_train, y_cat_train)
 
-# 1.2- Save the pipeline
+# 1.3- Save the pipeline
 with open(os.path.join(MODELS_PATH, "log_reg_pipeline.pkl"), "wb") as f:
     pickle.dump(pipeline_1, f)
 
 
-# 2- Regression Models
+# 2- Regression Models Samples
 common_sample = df.loc[np.where(df.price <= price_threshold)[0], :]
 exclusive_sample = df.loc[np.where(df.price > price_threshold)[0], :]
 
+
+# 2.1- Common Model
 params = {
     "objective": "regression",
     "metric": "l1",
@@ -91,8 +94,6 @@ params = {
     "random_state": SEED,
 }
 
-
-# 2.1- Common Model
 X_common = common_sample.drop(columns=["price"])
 y_common = common_sample[["price"]]
 Xc_train, Xc_val, Xc_test, yc_train, yc_val, yc_test = train_val_test_split(
@@ -196,5 +197,17 @@ Xe_val.to_csv(os.path.join(MODEL_DATA_PATH, "exclusive_Xe_val.csv"), index=False
 ye_val.to_csv(os.path.join(MODEL_DATA_PATH, "exclusive_ye_val.csv"), index=False)
 Xe_test.to_csv(os.path.join(MODEL_DATA_PATH, "exclusive_Xe_test.csv"), index=False)
 ye_test.to_csv(os.path.join(MODEL_DATA_PATH, "exclusive_ye_test.csv"), index=False)
+
+# 3.2- Save the column categories
+with open(os.path.join(MODEL_DATA_PATH, "column_categories.pkl"), "wb") as f:
+    pickle.dump(column_categories, f)
+    
+# # 3.3- Save the data transformation pipeline
+# with open(os.path.join(MODELS_PATH, "data_transformation_pipeline.pkl"), "wb") as f:
+#     pickle.dump(pipeline_1, f)
+
+# # 3.4- Save the prediction pipeline
+# with open(os.path.join(MODELS_PATH, "prediction_pipeline.pkl"), "wb") as f:
+#     pickle.dump([pipeline_1, pipeline_2, pipeline_3, log_reg, lgbm_common, lgbm_exclusive], f)
 
 print("Train pipeline finished.")
