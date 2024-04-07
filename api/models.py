@@ -60,4 +60,4 @@ async def predict_price(
             detail=str(e)
         )
 
-    return {"price": price}
+    return {"price": float(price)}
